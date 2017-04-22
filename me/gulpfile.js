@@ -5,17 +5,31 @@ const sass = require('gulp-sass');
 const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync').create();
 const eslint = require('gulp-eslint');
+const jasmine = require('gulp-jasmine-phantom');
 
-gulp.task('default', ['styles', 'lint'], function () {
+gulp.task('default', ['styles', 'lint', 'copy-html', 'copy-image'], () => {
   // console.log('gulp is running');
 
   gulp.watch('./sass/**/*.scss', ['styles']);
-  gulp.watch('./js/**/*.js', ['lint'])
+  gulp.watch('./js/**/*.js', ['lint']);
+  gulp.watch('./index.html', ['copy-html']);
+  gulp.watch('/build/index.html')
+    .on('change', browserSync.reload);
 
   browserSync.init({
-       server: './'
-   });
+    server: './build'
+  });
+  
   browserSync.stream();
+});
+
+gulp.task('styles', () => {
+  gulp.src('./sass/**/*.scss')
+      .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError)) // logs error and continues with build instead of break
+      .pipe(autoprefixer({
+        browsers: ['last 2 versions']
+      }))
+      .pipe(gulp.dest('./build/css'));
 });
 
 gulp.task('lint', () => {
@@ -35,11 +49,20 @@ gulp.task('lint', () => {
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('styles', function() {
-  gulp.src('./sass/**/*.scss')
-      .pipe(sass().on('error', sass.logError)) // logs error and continues with build instead of break
-      .pipe(autoprefixer({
-        browsers: ['last 2 versions']
-      }))
-      .pipe(gulp.dest('./css'));
+gulp.task('tests', () => {
+  gulp.src('./tests/spec/extraSpec.js')
+    .pipe(jasmine({
+      integration: true,
+      vendor: './js/*.js'}));
 });
+
+gulp.task('copy-html', () => {
+  gulp.src('./index.html')
+    .pipe(gulp.dest('./build'));
+});
+
+
+gulp.task('copy-image', () => {
+  gulp.src('./img/*')
+    .pipe(gulp.dest('./build/img'));
+})
