@@ -1,10 +1,19 @@
+/*eslint-env node */
+
 var gulp = require('gulp'),
     sass = require('gulp-sass'),
-    autoprefixer = require('gulp-autoprefixer');
+    autoprefixer = require('gulp-autoprefixer'),
+    browserSync = require('browser-sync').create();
 
 gulp.task('default', function () {
   console.log('gulp is running');
+
   gulp.watch('./sass/**/*.scss', ['sass']);
+
+  browserSync.init({
+       server: "./"
+   });
+  browserSync.stream();
 });
 
 gulp.task('styles', function() {
