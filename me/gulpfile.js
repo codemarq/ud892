@@ -7,8 +7,10 @@ const browserSync 	= require('browser-sync').create();
 const eslint 				= require('gulp-eslint');
 const jasmine 			= require('gulp-jasmine-phantom');
 const concat				=	require('gulp-concat');
+const uglify				=	require('gulp-uglify');
+const babel					= require('gulp-babel');
 
-gulp.task('default', ['styles', 'lint', 'copy-html', 'copy-image'], () => {
+gulp.task('default', ['styles', 'lint', 'copy-html', 'copy-image', 'scripts'], () => {
 	// console.log('gulp is running');
 
 	gulp.watch('./sass/**/*.scss', ['styles']);
@@ -70,12 +72,15 @@ gulp.task('copy-image', () => {
 
 gulp.task('scripts', () => {
 	gulp.src('./js/**/*.js')
+		.pipe(babel())
 		.pipe(concat('all.js'))
 		.pipe(gulp.dest('./build/js'));
 });
 
 gulp.task('scripts-build', () => {
 	gulp.src('./js/**/*.js')
+		.pipe(babel())
 		.pipe(concat('all.js'))
+		.pipe(uglify())
 		.pipe(gulp.dest('./build/js'));
 });
